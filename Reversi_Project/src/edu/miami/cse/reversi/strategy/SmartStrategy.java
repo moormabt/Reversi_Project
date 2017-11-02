@@ -4,6 +4,8 @@ import edu.miami.cse.reversi.Board;
 import edu.miami.cse.reversi.Square;
 import edu.miami.cse.reversi.Strategy;
 
+//test1
+
 public class SmartStrategy implements Strategy{
 
 	@Override
