@@ -20,16 +20,74 @@ public class SmartStrategy implements Strategy{
 	}
 
 	/**
-	   * A simple utility method for selecting a item with alpha-beta algorithm 
-	   * from a set.
-	   * 
-	   * @param itemSet
-	   *          The set of items from which to select.
-	   * @return A 'best' item to maximize the benefit from the set.
-	   */
-	  public static <T> T chooseOne(Set<T> itemSet) {
-	    List<T> itemList = new ArrayList<>(itemSet);
-	    return itemList.get(new Random().nextInt(itemList.size()));
-	  }
-	
+	 * A simple utility method for selecting a item with alpha-beta algorithm 
+	 * from a set.
+	 * 
+	 * @param itemSet
+	 *          The set of items from which to select.
+	 * @return A 'best' item to maximize the benefit from the set.
+	 */
+	public static <T> T chooseOne(Set<T> itemSet) {
+		List<T> itemList = new ArrayList<>(itemSet);
+		return itemList.get(new Random().nextInt(itemList.size()));
+	}
+
+	//alpha beta search (deep) { ........ evaluate(tempBoard)}
+
+	//
+	//int[][] b; //0 is blank space, 1 is player piece, -1 is opponent piece
+	private int evaluate(int[][] b) {
+		int numberValue = 0;
+		int positionValue = 0;
+		int relationValue = 0;
+
+		for(int i = 0; i < 8; i++){
+			for(int j = 0; j < 8; j++){
+
+				if(){
+
+				}else if(){
+
+				}
+
+
+
+			}
+
+		}
+
+
+
+
+		return numberValue + positionValue + relationValue;
+	}
+
+	private boolean isEnd(int[][] b){
+		boolean full = true;
+		boolean white = true;
+		boolean black = true;
+		boolean result = true;
+		for(int i = 0; i < 8; i++){
+			for(int j = 0; j < 8; j++){
+				if(full && b[i][j] == 0) full = false;
+				else if(black && b[i][j] == 1) black = false;
+				else if(white && b[i][j] == -1) white = false;
+
+				if(!full && !black && !white){
+					result = false;
+					break;
+				}
+			}
+			if(!result)
+				break;
+
+		}
+
+		return result;
+	}
+
+
+
+
+
 }
