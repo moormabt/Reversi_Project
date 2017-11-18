@@ -2,9 +2,11 @@ package edu.miami.cse.reversi.strategy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import edu.miami.cse.reversi.Board;
+import edu.miami.cse.reversi.Player;
 import edu.miami.cse.reversi.Square;
 import edu.miami.cse.reversi.Strategy;
 
@@ -34,58 +36,33 @@ public class SmartStrategy implements Strategy{
 
 	//alpha beta search (deep) { ........ evaluate(tempBoard)}
 
-	//
-	//int[][] b; //0 is blank space, 1 is player piece, -1 is opponent piece
-	private int evaluate(int[][] b) {
-		int numberValue = 0;
-		int positionValue = 0;
-		int relationValue = 0;
-
-		for(int i = 0; i < 8; i++){
-			for(int j = 0; j < 8; j++){
-
-				if(){
-
-				}else if(){
-
-				}
-
-
-
-			}
-
+	
+	private int evaluate(Board board) {
+		
+		Player currentPlayer = board.getCurrentPlayer();
+		Player oppoentPlayer = currentPlayer.opponent();
+		
+		//when board is finished
+		if(board.isComplete()){
+			//winner is current player return maxValue
+			if(board.getWinner().equals(currentPlayer))
+				return Integer.MAX_VALUE;
+			//winner is opponent player return minValue
+			else if(board.getWinner().equals(oppoentPlayer))
+				return Integer.MIN_VALUE;
+			//Tie
+			else
+				return 0;
 		}
+		
+		//Basic easy mode (count difference between number of pieces)
+		int count = 0;
+		Map<Player, Integer> counts = board.getPlayerSquareCounts();
+		count += counts.get(currentPlayer);
+		count -= counts.get(oppoentPlayer);
 
-
-
-
-		return numberValue + positionValue + relationValue;
+		return count;
 	}
-
-	private boolean isEnd(int[][] b){
-		boolean full = true;
-		boolean white = true;
-		boolean black = true;
-		boolean result = true;
-		for(int i = 0; i < 8; i++){
-			for(int j = 0; j < 8; j++){
-				if(full && b[i][j] == 0) full = false;
-				else if(black && b[i][j] == 1) black = false;
-				else if(white && b[i][j] == -1) white = false;
-
-				if(!full && !black && !white){
-					result = false;
-					break;
-				}
-			}
-			if(!result)
-				break;
-
-		}
-
-		return result;
-	}
-
 
 
 
