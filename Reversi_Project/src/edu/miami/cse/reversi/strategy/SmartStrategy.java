@@ -1,6 +1,7 @@
 package edu.miami.cse.reversi.strategy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -22,12 +23,25 @@ public class SmartStrategy implements Strategy{
 
 	@Override
 	public Square chooseSquare(Board board) {
-		return chooseOne(board.getCurrentPossibleSquares());
-		
-		/* To do:
+		//return chooseOne(board.getCurrentPossibleSquares());
+				
+		/*
 		 * for all possible moves
 		 * 		return move with greatest alphabeta()
 		 */
+		List<Square> children = new ArrayList<>(board.getCurrentPossibleSquares());
+		HashMap<Integer, Square> moveValues = new HashMap<Integer, Square>();
+		
+		int bestScore = Integer.MIN_VALUE;
+		int score = Integer.MIN_VALUE;
+		for (Square s: children) {
+			score = alphabeta(board.play(s), 5, true); //set to 5 for now, modify as you will
+			moveValues.put(score, s);
+			if (score > bestScore)
+				bestScore = score;
+		}
+		return moveValues.get(bestScore);
+
 	}
 	
 	//temp implementation to push, works like minimax
@@ -46,13 +60,10 @@ public class SmartStrategy implements Strategy{
 		if (!isOpponent) { //if player is our SmartStrategy
 			//maximize
 			
-			Board curr = board;
-			final Board boardForFuture = curr;
-			
 			int bestScore = Integer.MIN_VALUE;
 			int score = Integer.MIN_VALUE;
 			for (Square s: children) {
-				score = alphabeta(board.play(s), (depthControl-1), !isOpponent); //will mess up current Board, no copy constructor
+				score = alphabeta(board.play(s), (depthControl-1), !isOpponent);
 				if (score > bestScore)
 					bestScore = score;
 			}
@@ -66,7 +77,7 @@ public class SmartStrategy implements Strategy{
 			int bestScore = Integer.MAX_VALUE;
 			int score = Integer.MAX_VALUE;
 			for (Square s: children) {
-				score = alphabeta(board.play(s), (depthControl-1), !isOpponent); //will mess up current Board, no copy constructor
+				score = alphabeta(board.play(s), (depthControl-1), !isOpponent);
 				if (score < bestScore)
 					bestScore = score;
 			}
