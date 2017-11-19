@@ -6,10 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-
-import org.pcollections.PMap;
-import org.pcollections.PSet;
-
 import edu.miami.cse.reversi.Board;
 import edu.miami.cse.reversi.Player;
 import edu.miami.cse.reversi.Square;
@@ -21,6 +17,15 @@ import edu.miami.cse.reversi.Strategy;
  */
 public class SmartStrategy implements Strategy{
 
+	private int[][] valueBook = {	{24, 0,20,16,16,20, 0,24},
+									{ 0, 0,16, 4, 4,16, 0, 0},
+									{20,16,12, 8, 8,12,16,20},
+									{16, 4, 8, 0, 0, 8, 4,16},
+									{16, 4, 8, 0, 0, 8, 4,16},
+									{20,16,12, 8, 8,12,16,20},
+									{ 0, 0,16, 4, 4,16, 0, 0},
+									{24, 0,20,16,16,20, 0,24}};
+	
 	@Override
 	public Square chooseSquare(Board board) {
 		//return chooseOne(board.getCurrentPossibleSquares());
@@ -35,7 +40,7 @@ public class SmartStrategy implements Strategy{
 		int bestScore = Integer.MIN_VALUE;
 		int score = Integer.MIN_VALUE;
 		for (Square s: children) {
-			score = alphabeta(board.play(s), 5, true, Integer.MIN_VALUE, Integer.MAX_VALUE); //set to 5 for now, modify as you will
+			score = alphabeta(board.play(s), 5, false, Integer.MIN_VALUE, Integer.MAX_VALUE); //set to 5 for now, modify as you will
 			moveValues.put(score, s);
 			if (score > bestScore)
 				bestScore = score;
@@ -95,22 +100,7 @@ public class SmartStrategy implements Strategy{
 		
 		return -1;
 	}
-
-	/**
-	 * A simple utility method for selecting a item with alpha-beta algorithm 
-	 * from a set.
-	 * 
-	 * @param itemSet
-	 *          The set of items from which to select.
-	 * @return A 'best' item to maximize the benefit from the set.
-	 */
-	public static <T> T chooseOne(Set<T> itemSet) {
-		List<T> itemList = new ArrayList<>(itemSet);
-		return itemList.get(new Random().nextInt(itemList.size()));
-	}
-
-	//alpha beta search (deep) { ........ evaluate(tempBoard)}
-
+	
 	
 	private int evaluate(Board board) {
 		
@@ -136,90 +126,21 @@ public class SmartStrategy implements Strategy{
 		count += counts.get(currentPlayer);
 		count -= counts.get(oppoentPlayer);
 
-		return count;
-	}
-	
-	private int midLevelEva(Board board) {
-		Player player = board.getCurrentPlayer();
-		Player opponent = player.opponent();
-
-		int totalValueOnBoard = 0;
-
-		Map<Player, Integer> value = board.getPlayerSquareCounts();
+		//Improved mid mode (position value)
 		Map<Square, Player> storeSquareToPlayer = board.getSquareOwners();
-
 		for (Square s : storeSquareToPlayer.keySet()) {
-			if ((s.getRow() == 0 && s.getColumn() == 0) || (s.getRow() == 0 && s.getColumn() == 7)
-					|| (s.getRow() == 7 && s.getColumn() == 0) || (s.getRow() == 7 && s.getColumn() == 7)) {
-				if (storeSquareToPlayer.get(s).equals(player)) {
-					totalValueOnBoard = totalValueOnBoard + 24;
-				}
-				if (storeSquareToPlayer.get(s).equals(opponent)) {
-					totalValueOnBoard = totalValueOnBoard - 24;
-				}
-			} else if ((s.getRow() == 0 && s.getColumn() == 2) || (s.getRow() == 0 && s.getColumn() == 5)
-					|| (s.getRow() == 2 && s.getColumn() == 0) || (s.getRow() == 2 && s.getColumn() == 7)
-					|| (s.getRow() == 5 && s.getColumn() == 0) || (s.getRow() == 5 && s.getColumn() == 7)
-					|| (s.getRow() == 7 && s.getColumn() == 2) || (s.getRow() == 7 && s.getColumn() == 5)) {
-				if (storeSquareToPlayer.get(s).equals(player)) {
-					totalValueOnBoard = totalValueOnBoard + 20;
-				}
-				if (storeSquareToPlayer.get(s).equals(opponent)) {
-					totalValueOnBoard = totalValueOnBoard - 20;
-				}
-			} else if ((s.getRow() == 0 && s.getColumn() == 3) || (s.getRow() == 0 && s.getColumn() == 4)
-					|| (s.getRow() == 1 && s.getColumn() == 2) || (s.getRow() == 1 && s.getColumn() == 5)
-					|| (s.getRow() == 2 && s.getColumn() == 1) || (s.getRow() == 2 && s.getColumn() == 6)
-					|| (s.getRow() == 3 && s.getColumn() == 0) || (s.getRow() == 3 && s.getColumn() == 7)
-					|| (s.getRow() == 4 && s.getColumn() == 0) || (s.getRow() == 4 && s.getColumn() == 7)
-					|| (s.getRow() == 5 && s.getColumn() == 1) || (s.getRow() == 5 && s.getColumn() == 6)
-					|| (s.getRow() == 6 && s.getColumn() == 2) || (s.getRow() == 6 && s.getColumn() == 5)
-					|| (s.getRow() == 7 && s.getColumn() == 3) || (s.getRow() == 7 && s.getColumn() == 4)) {
-				if (storeSquareToPlayer.get(s).equals(player)) {
-					totalValueOnBoard = totalValueOnBoard + 16;
-				}
-				if (storeSquareToPlayer.get(s).equals(opponent)) {
-					totalValueOnBoard = totalValueOnBoard - 16;
-				}
-			} else if ((s.getRow() == 2 && s.getColumn() == 2) || (s.getRow() == 2 && s.getColumn() == 5)
-					|| (s.getRow() == 5 && s.getColumn() == 2) || (s.getRow() == 5 && s.getColumn() == 5)) {
-				if (storeSquareToPlayer.get(s).equals(player)) {
-					totalValueOnBoard = totalValueOnBoard + 12;
-				}
-				if (storeSquareToPlayer.get(s).equals(opponent)) {
-					totalValueOnBoard = totalValueOnBoard - 12;
-				}
-			}else if ((s.getRow() == 2 && s.getColumn() == 3) || (s.getRow() == 2 && s.getColumn() == 4)
-					|| (s.getRow() == 3 && s.getColumn() == 2) || (s.getRow() == 3 && s.getColumn() == 5)
-					|| (s.getRow() == 4 && s.getColumn() == 2) || (s.getRow() == 4 && s.getColumn() == 5)
-					|| (s.getRow() == 5 && s.getColumn() == 3) || (s.getRow() == 5 && s.getColumn() == 4)) {
-				if (storeSquareToPlayer.get(s).equals(player)) {
-					totalValueOnBoard = totalValueOnBoard + 8;
-				}
-				if (storeSquareToPlayer.get(s).equals(opponent)) {
-					totalValueOnBoard = totalValueOnBoard - 8;
-				}
-			}else if ((s.getRow() == 1 && s.getColumn() == 3) || (s.getRow() == 1 && s.getColumn() == 4)
-					|| (s.getRow() == 3 && s.getColumn() == 1) || (s.getRow() == 3 && s.getColumn() == 6)
-					|| (s.getRow() == 4 && s.getColumn() == 1) || (s.getRow() == 4 && s.getColumn() == 6)
-					|| (s.getRow() == 6 && s.getColumn() == 3) || (s.getRow() == 6 && s.getColumn() == 4)) {
-				if (storeSquareToPlayer.get(s).equals(player)) {
-					totalValueOnBoard = totalValueOnBoard + 4;
-				}
-				if (storeSquareToPlayer.get(s).equals(opponent)) {
-					totalValueOnBoard = totalValueOnBoard - 4;
-				}
-			}
-
+			if (storeSquareToPlayer.get(s).equals(currentPlayer))
+				count += valueBook[s.getRow()][s.getColumn()];
+			else if(storeSquareToPlayer.get(s).equals(oppoentPlayer))
+				count -= valueBook[s.getRow()][s.getColumn()];
 		}
 		
-		if(totalValueOnBoard==0){
-			totalValueOnBoard=evaluate(board);
-		}
-
-		return totalValueOnBoard;
+		//Improved hard mode (relation and mobility)
+		//mobility
+		count += board.getCurrentPossibleSquares().size();
+		//relation?
+		
+		return count;
 	}
-
-
 
 }
