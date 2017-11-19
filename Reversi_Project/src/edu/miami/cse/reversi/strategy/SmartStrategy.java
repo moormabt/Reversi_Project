@@ -35,7 +35,7 @@ public class SmartStrategy implements Strategy{
 		int bestScore = Integer.MIN_VALUE;
 		int score = Integer.MIN_VALUE;
 		for (Square s: children) {
-			score = alphabeta(board.play(s), 5, true); //set to 5 for now, modify as you will
+			score = alphabeta(board.play(s), 5, true, Integer.MIN_VALUE, Integer.MAX_VALUE); //set to 5 for now, modify as you will
 			moveValues.put(score, s);
 			if (score > bestScore)
 				bestScore = score;
@@ -45,7 +45,7 @@ public class SmartStrategy implements Strategy{
 	}
 	
 	//temp implementation to push, works like minimax
-	private int alphabeta(Board board, int depthControl, boolean isOpponent) { //takes boards of first move and returns value
+	private int alphabeta(Board board, int depthControl, boolean isOpponent, int a, int b) { //takes boards of first move and returns value
 		if (depthControl<1)
 			return evaluate(board);
 		
@@ -53,7 +53,7 @@ public class SmartStrategy implements Strategy{
 		if (children.size()==0) { //if no possible moves
 			if (board.isComplete())
 				return evaluate(board);
-			return alphabeta(board.pass(), (depthControl-1), !isOpponent);
+			return alphabeta(board.pass(), (depthControl-1), !isOpponent, a, b);
 		}
 		
 		
@@ -63,9 +63,12 @@ public class SmartStrategy implements Strategy{
 			int bestScore = Integer.MIN_VALUE;
 			int score = Integer.MIN_VALUE;
 			for (Square s: children) {
-				score = alphabeta(board.play(s), (depthControl-1), !isOpponent);
+				score = alphabeta(board.play(s), (depthControl-1), !isOpponent, a, b);
 				if (score > bestScore)
 					bestScore = score;
+				a = Math.max(a, score);
+				if (b <= a)
+					break; //beta cut off
 			}
 			return bestScore;
 		}
@@ -77,9 +80,12 @@ public class SmartStrategy implements Strategy{
 			int bestScore = Integer.MAX_VALUE;
 			int score = Integer.MAX_VALUE;
 			for (Square s: children) {
-				score = alphabeta(board.play(s), (depthControl-1), !isOpponent);
+				score = alphabeta(board.play(s), (depthControl-1), !isOpponent, a, b);
 				if (score < bestScore)
 					bestScore = score;
+				b = Math.min(b, score);
+				if (b <= a)
+					break; //alpha cut off
 			}
 			return bestScore;
 		}
