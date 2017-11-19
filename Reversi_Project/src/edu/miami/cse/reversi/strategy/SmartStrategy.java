@@ -63,7 +63,87 @@ public class SmartStrategy implements Strategy{
 
 		return count;
 	}
+	
+	private int midLevelEva(Board board) {
+		Player player = board.getCurrentPlayer();
+		Player opponent = player.opponent();
 
+		int totalValueOnBoard = 0;
+
+		Map<Player, Integer> value = board.getPlayerSquareCounts();
+		Map<Square, Player> storeSquareToPlayer = board.getSquareOwners();
+
+		for (Square s : storeSquareToPlayer.keySet()) {
+			if ((s.getRow() == 0 && s.getColumn() == 0) || (s.getRow() == 0 && s.getColumn() == 7)
+					|| (s.getRow() == 7 && s.getColumn() == 0) || (s.getRow() == 7 && s.getColumn() == 7)) {
+				if (storeSquareToPlayer.get(s).equals(player)) {
+					totalValueOnBoard = totalValueOnBoard + 24;
+				}
+				if (storeSquareToPlayer.get(s).equals(opponent)) {
+					totalValueOnBoard = totalValueOnBoard - 24;
+				}
+			} else if ((s.getRow() == 0 && s.getColumn() == 2) || (s.getRow() == 0 && s.getColumn() == 5)
+					|| (s.getRow() == 2 && s.getColumn() == 0) || (s.getRow() == 2 && s.getColumn() == 7)
+					|| (s.getRow() == 5 && s.getColumn() == 0) || (s.getRow() == 5 && s.getColumn() == 7)
+					|| (s.getRow() == 7 && s.getColumn() == 2) || (s.getRow() == 7 && s.getColumn() == 5)) {
+				if (storeSquareToPlayer.get(s).equals(player)) {
+					totalValueOnBoard = totalValueOnBoard + 20;
+				}
+				if (storeSquareToPlayer.get(s).equals(opponent)) {
+					totalValueOnBoard = totalValueOnBoard - 20;
+				}
+			} else if ((s.getRow() == 0 && s.getColumn() == 3) || (s.getRow() == 0 && s.getColumn() == 4)
+					|| (s.getRow() == 1 && s.getColumn() == 2) || (s.getRow() == 1 && s.getColumn() == 5)
+					|| (s.getRow() == 2 && s.getColumn() == 1) || (s.getRow() == 2 && s.getColumn() == 6)
+					|| (s.getRow() == 3 && s.getColumn() == 0) || (s.getRow() == 3 && s.getColumn() == 7)
+					|| (s.getRow() == 4 && s.getColumn() == 0) || (s.getRow() == 4 && s.getColumn() == 7)
+					|| (s.getRow() == 5 && s.getColumn() == 1) || (s.getRow() == 5 && s.getColumn() == 6)
+					|| (s.getRow() == 6 && s.getColumn() == 2) || (s.getRow() == 6 && s.getColumn() == 5)
+					|| (s.getRow() == 7 && s.getColumn() == 3) || (s.getRow() == 7 && s.getColumn() == 4)) {
+				if (storeSquareToPlayer.get(s).equals(player)) {
+					totalValueOnBoard = totalValueOnBoard + 16;
+				}
+				if (storeSquareToPlayer.get(s).equals(opponent)) {
+					totalValueOnBoard = totalValueOnBoard - 16;
+				}
+			} else if ((s.getRow() == 2 && s.getColumn() == 2) || (s.getRow() == 2 && s.getColumn() == 5)
+					|| (s.getRow() == 5 && s.getColumn() == 2) || (s.getRow() == 5 && s.getColumn() == 5)) {
+				if (storeSquareToPlayer.get(s).equals(player)) {
+					totalValueOnBoard = totalValueOnBoard + 12;
+				}
+				if (storeSquareToPlayer.get(s).equals(opponent)) {
+					totalValueOnBoard = totalValueOnBoard - 12;
+				}
+			}else if ((s.getRow() == 2 && s.getColumn() == 3) || (s.getRow() == 2 && s.getColumn() == 4)
+					|| (s.getRow() == 3 && s.getColumn() == 2) || (s.getRow() == 3 && s.getColumn() == 5)
+					|| (s.getRow() == 4 && s.getColumn() == 2) || (s.getRow() == 4 && s.getColumn() == 5)
+					|| (s.getRow() == 5 && s.getColumn() == 3) || (s.getRow() == 5 && s.getColumn() == 4)) {
+				if (storeSquareToPlayer.get(s).equals(player)) {
+					totalValueOnBoard = totalValueOnBoard + 8;
+				}
+				if (storeSquareToPlayer.get(s).equals(opponent)) {
+					totalValueOnBoard = totalValueOnBoard - 8;
+				}
+			}else if ((s.getRow() == 1 && s.getColumn() == 3) || (s.getRow() == 1 && s.getColumn() == 4)
+					|| (s.getRow() == 3 && s.getColumn() == 1) || (s.getRow() == 3 && s.getColumn() == 6)
+					|| (s.getRow() == 4 && s.getColumn() == 1) || (s.getRow() == 4 && s.getColumn() == 6)
+					|| (s.getRow() == 6 && s.getColumn() == 3) || (s.getRow() == 6 && s.getColumn() == 4)) {
+				if (storeSquareToPlayer.get(s).equals(player)) {
+					totalValueOnBoard = totalValueOnBoard + 4;
+				}
+				if (storeSquareToPlayer.get(s).equals(opponent)) {
+					totalValueOnBoard = totalValueOnBoard - 4;
+				}
+			}
+
+		}
+		
+		if(totalValueOnBoard==0){
+			totalValueOnBoard=evaluate(board);
+		}
+
+		return totalValueOnBoard;
+	}
 
 
 
