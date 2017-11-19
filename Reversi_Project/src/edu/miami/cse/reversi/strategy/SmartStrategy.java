@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+
+import org.pcollections.PMap;
+import org.pcollections.PSet;
+
 import edu.miami.cse.reversi.Board;
 import edu.miami.cse.reversi.Player;
 import edu.miami.cse.reversi.Square;
@@ -19,6 +23,60 @@ public class SmartStrategy implements Strategy{
 	@Override
 	public Square chooseSquare(Board board) {
 		return chooseOne(board.getCurrentPossibleSquares());
+		
+		/* To do:
+		 * for all possible moves
+		 * 		return move with greatest alphabeta()
+		 */
+	}
+	
+	//temp implementation to push, works like minimax
+	private int alphabeta(Board board, int depthControl, boolean isOpponent) { //takes boards of first move and returns value
+		if (depthControl<1)
+			return evaluate(board);
+		
+		List<Square> children = new ArrayList<>(board.getCurrentPossibleSquares()); //gets possible moves
+		if (children.size()==0) { //if no possible moves
+			if (board.isComplete())
+				return evaluate(board);
+			return alphabeta(board.pass(), (depthControl-1), !isOpponent);
+		}
+		
+		
+		if (!isOpponent) { //if player is our SmartStrategy
+			//maximize
+			
+			Board curr = board;
+			final Board boardForFuture = curr;
+			
+			int bestScore = Integer.MIN_VALUE;
+			int score = Integer.MIN_VALUE;
+			for (Square s: children) {
+				score = alphabeta(board.play(s), (depthControl-1), !isOpponent); //will mess up current Board, no copy constructor
+				if (score > bestScore)
+					bestScore = score;
+			}
+			return bestScore;
+		}
+		
+		
+		if (isOpponent) { //if player is opponent
+			//minimize
+			
+			int bestScore = Integer.MAX_VALUE;
+			int score = Integer.MAX_VALUE;
+			for (Square s: children) {
+				score = alphabeta(board.play(s), (depthControl-1), !isOpponent); //will mess up current Board, no copy constructor
+				if (score < bestScore)
+					bestScore = score;
+			}
+			return bestScore;
+		}
+		
+		//do stuff |ignore this|
+		//alphabeta(newboard, (depthControl-1));
+		
+		return -1;
 	}
 
 	/**
