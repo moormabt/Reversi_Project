@@ -10,15 +10,15 @@ import edu.miami.cse.reversi.Strategy;
  * A simple strategy that just chooses with Smart Strategy with alpha-beta
  *  from the squares available to the current player.
  */
-public class SmartStrategy implements Strategy{
+public class SmartStrategyNew implements Strategy{
 
 	private int[][] valueBook = {	{40, 0,20,16,16,20, 0,40},
-									{ 0, 0,16, 4, 4,16, 0, 0},
-									{20,16,12, 8, 8,12,16,20},
-									{16, 4, 8, 0, 0, 8, 4,16},
-									{16, 4, 8, 0, 0, 8, 4,16},
-									{20,16,12, 8, 8,12,16,20},
-									{ 0, 0,16, 4, 4,16, 0, 0},
+									{ 0, 0,16, 8, 8,16, 0, 0},
+									{20,16,12, 4, 4,12,16,20},
+									{16, 8, 4, 0, 0, 4, 8,16},
+									{16, 8, 4, 0, 0, 4, 8,16},
+									{20,16,12, 4, 4,12,16,20},
+									{ 0, 0,16, 8, 8,16, 0, 0},
 									{40, 0,20,16,16,20, 0,40}};
 	
 	private long startTime;
