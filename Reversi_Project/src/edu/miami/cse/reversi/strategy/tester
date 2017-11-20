@@ -10,7 +10,7 @@ import edu.miami.cse.reversi.Strategy;
  * A simple strategy that just chooses with Smart Strategy with alpha-beta
  *  from the squares available to the current player.
  */
-public class SmartStrategy implements Strategy{
+public class oldStrategy implements Strategy{
 
 	private int[][] valueBook = {	{40, 0,20,16,16,20, 0,40},
 									{ 0, 0,16, 8, 8,16, 0, 0},
@@ -133,39 +133,61 @@ public class SmartStrategy implements Strategy{
 		//Basic easy mode (count difference between number of pieces)
 		int count = 0;
 		Map<Player, Integer> counts = board.getPlayerSquareCounts();
-		count += counts.get(currentPlayer);
-		count -= counts.get(oppoentPlayer);
+		count -= counts.get(currentPlayer);
+		count += counts.get(oppoentPlayer);
 		count=count/2;
 		//Improved mid mode (position value) and frontiers
 		Map<Square, Player> storeSquareToPlayer = board.getSquareOwners();
 		int frontiers = 0;
 		for (Square s : storeSquareToPlayer.keySet()) {
+			int row = s.getRow();
+			int column = s.getColumn();
 			if (storeSquareToPlayer.get(s).equals(currentPlayer)) {					
-				count += valueBook[s.getRow()][s.getColumn()];
+				count += valueBook[row][column];
 				//frontiers calculation
-				if (storeSquareToPlayer.get(new Square(s.getRow(), s.getColumn()+1))==null
-						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()+1))==null
-						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()))==null
-						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()-1))==null
-						|| storeSquareToPlayer.get(new Square(s.getRow(), s.getColumn()-1))==null
-						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()-1))==null
-						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()))==null
-						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()+1))==null)
+				if (storeSquareToPlayer.get(new Square(row, s.getColumn()+1))==null
+						|| storeSquareToPlayer.get(new Square(row+1, column+1))==null
+						|| storeSquareToPlayer.get(new Square(row+1, column))==null
+						|| storeSquareToPlayer.get(new Square(row+1, column-1))==null
+						|| storeSquareToPlayer.get(new Square(row, column-1))==null
+						|| storeSquareToPlayer.get(new Square(row-1, column-1))==null
+						|| storeSquareToPlayer.get(new Square(row-1, column))==null
+						|| storeSquareToPlayer.get(new Square(row-1, column+1))==null)
 						{frontiers--;}
 			}
 			else if(storeSquareToPlayer.get(s).equals(oppoentPlayer)) {
-				count -= valueBook[s.getRow()][s.getColumn()];
+				count -= valueBook[row][column];
 				//frontiers calculation
-				if (storeSquareToPlayer.get(new Square(s.getRow(), s.getColumn()+1))==null
-						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()+1))==null
-						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()))==null
-						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()-1))==null
-						|| storeSquareToPlayer.get(new Square(s.getRow(), s.getColumn()-1))==null
-						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()-1))==null
-						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()))==null
-						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()+1))==null)
+				if (storeSquareToPlayer.get(new Square(row, s.getColumn()+1))==null
+						|| storeSquareToPlayer.get(new Square(row+1, column+1))==null
+						|| storeSquareToPlayer.get(new Square(row+1, column))==null
+						|| storeSquareToPlayer.get(new Square(row+1, column-1))==null
+						|| storeSquareToPlayer.get(new Square(row, column-1))==null
+						|| storeSquareToPlayer.get(new Square(row-1, column-1))==null
+						|| storeSquareToPlayer.get(new Square(row-1, column))==null
+						|| storeSquareToPlayer.get(new Square(row-1, column+1))==null)
 						{frontiers++;}
 			}
+			
+			//add stability
+			int stable = 0;
+			for(int i = 0; i < 8; i++) {
+				if(storeSquareToPlayer.get(new Square(row,i))==null) break;
+				if(storeSquareToPlayer.get(new Square(i,column))==null) break;
+				if(row+i<8 && column+i<8 && storeSquareToPlayer.get(new Square(row+i,column+i))==null) break;
+				if(row+i<8 && column-i>-1 && storeSquareToPlayer.get(new Square(row+i,column-i))==null) break;
+				if(row-i>-1 && column+i<8 && storeSquareToPlayer.get(new Square(row-i,column+i))==null) break;
+				if(row-i>-1 && column-i>-1 && storeSquareToPlayer.get(new Square(row-i,column-i))==null) break;
+				stable ++;
+			}
+
+			if(stable == 8 && storeSquareToPlayer.get(s).equals(currentPlayer)) {
+				count += valueBook[row][column];
+			}
+			else if(stable == 8 && storeSquareToPlayer.get(s).equals(oppoentPlayer)) {
+				count -= valueBook[row][column];
+			}
+					
 		}
 		count += 2*frontiers;
 		
