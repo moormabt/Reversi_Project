@@ -21,10 +21,13 @@ public class SmartStrategy implements Strategy{
 									{ 0, 0,16, 4, 4,16, 0, 0},
 									{40, 0,20,16,16,20, 0,40}};
 	
+	private long startTime;
+	
 	private Player currentPlayer;
 	private Player oppoentPlayer;
 	@Override
 	public Square chooseSquare(Board board) {
+		startTime = System.currentTimeMillis();
 		currentPlayer=board.getCurrentPlayer();
 		oppoentPlayer=currentPlayer.opponent();
 		Square finalResult=alphaBetaSearch(board);
@@ -33,6 +36,8 @@ public class SmartStrategy implements Strategy{
 	
 	//Testing Alpha-Beta Search
 		private int min(Board board, int alpha, int beta, int depth){
+			if ((System.currentTimeMillis()-startTime) > 950) //0.95 seconds
+				depth = 0;
 			if(board.isComplete()){
 				if(currentPlayer==board.getWinner()){
 					return evaluate(board)+200;
@@ -69,6 +74,8 @@ public class SmartStrategy implements Strategy{
 		}
 		
 		private int max(Board board, int alpha, int beta, int depth){
+			if ((System.currentTimeMillis()-startTime) > 950) //0.95 seconds
+				depth = 0;
 			if(board.isComplete()){
 				if(currentPlayer==board.getWinner()){
 					return evaluate(board)+200;
