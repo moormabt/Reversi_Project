@@ -1,0 +1,169 @@
+package edu.miami.cse.reversi.strategy;
+import java.util.Map;
+import java.util.Set;
+import edu.miami.cse.reversi.Board;
+import edu.miami.cse.reversi.Player;
+import edu.miami.cse.reversi.Square;
+import edu.miami.cse.reversi.Strategy;
+
+/**
+ * A simple strategy that just chooses with Smart Strategy with alpha-beta
+ *  from the squares available to the current player.
+ */
+public class oldStrategy implements Strategy{
+
+	private int[][] valueBook = {	{40, 0,20,16,16,20, 0,40},
+									{ 0, 0,16, 4, 4,16, 0, 0},
+									{20,16,12, 8, 8,12,16,20},
+									{16, 4, 8, 0, 0, 8, 4,16},
+									{16, 4, 8, 0, 0, 8, 4,16},
+									{20,16,12, 8, 8,12,16,20},
+									{ 0, 0,16, 4, 4,16, 0, 0},
+									{40, 0,20,16,16,20, 0,40}};
+	
+	private Player currentPlayer;
+	private Player oppoentPlayer;
+	private long startTime;
+	@Override
+	public Square chooseSquare(Board board) {
+		startTime = System.currentTimeMillis();
+		currentPlayer=board.getCurrentPlayer();
+		oppoentPlayer=currentPlayer.opponent();
+		Square finalResult=alphaBetaSearch(board);
+		return finalResult;
+	}
+	
+	//Testing Alpha-Beta Search
+		private int min(Board board, int alpha, int beta, int depth){
+			if ((System.currentTimeMillis()-startTime) > 950){ //0.95 seconds
+				//System.out.println("Depth reduced");
+				return evaluate(board);
+			}
+			if(board.isComplete()){
+				if(currentPlayer==board.getWinner()){
+					return Integer.MAX_VALUE;
+				}else if(board.getWinner()==null){
+					return evaluate(board);
+				}else{
+					return Integer.MIN_VALUE;
+				}
+			}
+			if(depth<=0){
+				return evaluate(board);
+			}
+			int minUtility=Integer.MAX_VALUE;
+			Set<Square> possible=board.getCurrentPossibleSquares();
+			if(possible.isEmpty()){
+				return max(board.pass(),alpha, beta,depth-1)-80;
+			}
+			for(Square s:possible){
+				Board newB=board.play(s);
+				int cur=max(newB,alpha,beta,depth-1);
+				
+				if(cur<minUtility){
+					minUtility=cur;
+				}
+				if(minUtility<=alpha){
+					break;
+				}
+				if(minUtility<beta){
+					beta=minUtility;
+				}
+			
+			}
+			return minUtility;
+		}
+		
+		private int max(Board board, int alpha, int beta, int depth){
+			if ((System.currentTimeMillis()-startTime) > 950){ //0.95 seconds
+				//System.out.println("Depth reduced");
+				return evaluate(board);
+			}
+			if(board.isComplete()){
+				if(currentPlayer==board.getWinner()){
+					return Integer.MAX_VALUE;
+				}else if(board.getWinner()==null){
+					return evaluate(board);
+				}else{
+					return Integer.MIN_VALUE;
+				}
+			}
+			if(depth<=0){
+				return evaluate(board);
+			}
+			int maxUtility=Integer.MIN_VALUE;
+			Set<Square> possible=board.getCurrentPossibleSquares();
+			if(possible.isEmpty()){
+				return min(board.pass(),alpha, beta,depth-1)-80;
+			}
+			for(Square s:possible){
+				Board newB=board.play(s);
+				int cur=min(newB,alpha,beta,depth-1);
+				
+				if(cur>maxUtility){
+					maxUtility=cur;
+				}
+				if(maxUtility>=beta){
+					break;
+				}
+				if(maxUtility>alpha){
+					beta=maxUtility;
+				}
+			}
+			return maxUtility;
+		}
+		
+		private Square alphaBetaSearch(Board board){
+			int alpha=Integer.MIN_VALUE;
+			int beta=Integer.MAX_VALUE;
+			Square result=null;
+			int maxV=Integer.MIN_VALUE;
+			
+			for(Square s:board.getCurrentPossibleSquares()){
+				Board newB=board.play(s);
+				int value=min(newB,alpha,beta,6);
+				if(value>=maxV){
+					maxV=value;
+					result=s;
+				}
+			}
+			return result;
+		}
+	
+	
+	private int evaluate(Board board) {
+		
+		//Basic easy mode (count difference between number of pieces)
+		int count = 0;
+		Map<Player, Integer> counts = board.getPlayerSquareCounts();
+		count += counts.get(currentPlayer);
+		count -= counts.get(oppoentPlayer);
+		count /= 2;
+		
+		//Improved mid mode (position value, stability)
+		Map<Square, Player> storeSquareToPlayer = board.getSquareOwners();
+		for (Square s : storeSquareToPlayer.keySet()) {
+			int row = s.getRow();
+			int column = s.getColumn();
+			//add position value
+			if (storeSquareToPlayer.get(s).equals(currentPlayer))
+				count += valueBook[row][column];
+			else if(storeSquareToPlayer.get(s).equals(oppoentPlayer))
+				count -= valueBook[row][column];
+					
+		}
+		
+		//Improved hard mode (relation and mobility)
+		//mobility
+		Set<Square> posibleMove = board.getCurrentPossibleSquares();
+		count += posibleMove.size();
+		for(Square s: posibleMove){
+			count-=valueBook[s.getRow()][s.getColumn()]/2;
+		}
+		
+		//relation?
+		
+		return count;
+	}
+
+}
