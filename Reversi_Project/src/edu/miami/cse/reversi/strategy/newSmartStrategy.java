@@ -35,17 +35,17 @@ public class SmartStrategy implements Strategy{
 		private int min(Board board, int alpha, int beta, int depth){
 			if(board.isComplete()){
 				if(currentPlayer==board.getWinner()){
-					return Integer.MAX_VALUE;
+					return evaluate(board)+200;
 				}else if(board.getWinner()==null){
 					return evaluate(board);
 				}else{
-					return Integer.MIN_VALUE;
+					return evaluate(board)-200;
 				}
 			}
 			if(depth<=0){
 				return evaluate(board);
 			}
-			int minUtility=Integer.MAX_VALUE;
+			int minValue=Integer.MAX_VALUE;
 			Set<Square> possible=board.getCurrentPossibleSquares();
 			if(possible.isEmpty()){
 				return max(board.pass(),alpha, beta,depth-1)-80;
@@ -54,34 +54,34 @@ public class SmartStrategy implements Strategy{
 				Board newB=board.play(s);
 				int cur=max(newB,alpha,beta,depth-1);
 				
-				if(cur<minUtility){
-					minUtility=cur;
+				if(cur<minValue){
+					minValue=cur;
 				}
-				if(minUtility<=alpha){
+				if(minValue<=alpha){
 					break;
 				}
-				if(minUtility<beta){
-					beta=minUtility;
+				if(minValue<beta){
+					beta=minValue;
 				}
 			
 			}
-			return minUtility;
+			return minValue;
 		}
 		
 		private int max(Board board, int alpha, int beta, int depth){
 			if(board.isComplete()){
 				if(currentPlayer==board.getWinner()){
-					return Integer.MAX_VALUE;
+					return evaluate(board)+200;
 				}else if(board.getWinner()==null){
 					return evaluate(board);
 				}else{
-					return Integer.MIN_VALUE;
+					return evaluate(board)-200;
 				}
 			}
 			if(depth<=0){
 				return evaluate(board);
 			}
-			int maxUtility=Integer.MIN_VALUE;
+			int maxValue=Integer.MIN_VALUE;
 			Set<Square> possible=board.getCurrentPossibleSquares();
 			if(possible.isEmpty()){
 				return min(board.pass(),alpha, beta,depth-1)-80;
@@ -90,17 +90,17 @@ public class SmartStrategy implements Strategy{
 				Board newB=board.play(s);
 				int cur=min(newB,alpha,beta,depth-1);
 				
-				if(cur>maxUtility){
-					maxUtility=cur;
+				if(cur>maxValue){
+					maxValue=cur;
 				}
-				if(maxUtility>=beta){
+				if(maxValue>=beta){
 					break;
 				}
-				if(maxUtility>alpha){
-					beta=maxUtility;
+				if(maxValue>alpha){
+					beta=maxValue;
 				}
 			}
-			return maxUtility;
+			return maxValue;
 		}
 		
 		private Square alphaBetaSearch(Board board){
@@ -128,8 +128,7 @@ public class SmartStrategy implements Strategy{
 		Map<Player, Integer> counts = board.getPlayerSquareCounts();
 		count += counts.get(currentPlayer);
 		count -= counts.get(oppoentPlayer);
-		count /= 2;
-		
+		count=count/2;
 		//Improved mid mode (position value)
 		Map<Square, Player> storeSquareToPlayer = board.getSquareOwners();
 		for (Square s : storeSquareToPlayer.keySet()) {
@@ -141,7 +140,10 @@ public class SmartStrategy implements Strategy{
 		
 		//Improved hard mode (relation and mobility)
 		//mobility
-		count += board.getCurrentPossibleSquares().size();
+		Set<Square> possibleSquare=board.getCurrentPossibleSquares();
+		for(Square s:possibleSquare){
+			count-=valueBook[s.getRow()][s.getColumn()]/2;
+		}
 		//relation?
 		
 		return count;
