@@ -145,6 +145,7 @@ public class SmartStrategy implements Strategy {
 	}
 	
 	
+	
 	//Testing Alpha-Beta Search
 	private int min(Board board, int alpha, int beta, int depth){
 		if(board.isComplete()){
@@ -162,7 +163,7 @@ public class SmartStrategy implements Strategy {
 		int minValue=Integer.MAX_VALUE;
 		Set<Square> possible=board.getCurrentPossibleSquares();
 		if(possible.isEmpty()){
-			return max(board.pass(),alpha, beta,depth-1)+100;
+			return max(board.pass(),alpha, beta,depth-1)+80;
 		}
 		for(Square s:possible){
 			Board newB=board.play(s);
@@ -198,11 +199,11 @@ public class SmartStrategy implements Strategy {
 		int maxValue=Integer.MIN_VALUE;
 		Set<Square> possible=board.getCurrentPossibleSquares();
 		if(possible.isEmpty()){
-			return max(board.pass(),alpha, beta,depth-1)+100;
+			return min(board.pass(),alpha, beta,depth-1)+80;
 		}
 		for(Square s:possible){
 			Board newB=board.play(s);
-			int cur=max(newB,alpha,beta,depth-1);
+			int cur=min(newB,alpha,beta,depth-1);
 			
 			if(cur>maxValue){
 				maxValue=cur;
@@ -226,7 +227,7 @@ public class SmartStrategy implements Strategy {
 		for(Square s:board.getCurrentPossibleSquares()){
 			Board newB=board.play(s);
 			int value=min(newB,alpha,beta,3);
-			if(value>maxV){
+			if(value>=maxV){
 				maxV=value;
 				result=s;
 			}
