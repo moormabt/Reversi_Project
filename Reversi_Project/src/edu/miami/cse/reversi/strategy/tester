@@ -10,20 +10,21 @@ import edu.miami.cse.reversi.Strategy;
  * A simple strategy that just chooses with Smart Strategy with alpha-beta
  *  from the squares available to the current player.
  */
-public class oldStrategy implements Strategy{
+public class SmartStrategy implements Strategy{
 
 	private int[][] valueBook = {	{40, 0,20,16,16,20, 0,40},
-									{ 0, 0,16, 4, 4,16, 0, 0},
-									{20,16,12, 8, 8,12,16,20},
-									{16, 4, 8, 0, 0, 8, 4,16},
-									{16, 4, 8, 0, 0, 8, 4,16},
-									{20,16,12, 8, 8,12,16,20},
-									{ 0, 0,16, 4, 4,16, 0, 0},
+									{ 0, 0,16, 8, 8,16, 0, 0},
+									{20,16,12, 4, 4,12,16,20},
+									{16, 8, 4, 0, 0, 4, 8,16},
+									{16, 8, 4, 0, 0, 4, 8,16},
+									{20,16,12, 4, 4,12,16,20},
+									{ 0, 0,16, 8, 8,16, 0, 0},
 									{40, 0,20,16,16,20, 0,40}};
+	
+	private long startTime;
 	
 	private Player currentPlayer;
 	private Player oppoentPlayer;
-	private long startTime;
 	@Override
 	public Square chooseSquare(Board board) {
 		startTime = System.currentTimeMillis();
@@ -35,23 +36,21 @@ public class oldStrategy implements Strategy{
 	
 	//Testing Alpha-Beta Search
 		private int min(Board board, int alpha, int beta, int depth){
-			if ((System.currentTimeMillis()-startTime) > 950){ //0.95 seconds
-				//System.out.println("Depth reduced");
-				return evaluate(board);
-			}
+			if ((System.currentTimeMillis()-startTime) > 950) //0.95 seconds
+				depth = 0;
 			if(board.isComplete()){
 				if(currentPlayer==board.getWinner()){
-					return Integer.MAX_VALUE;
+					return evaluate(board)+200;
 				}else if(board.getWinner()==null){
 					return evaluate(board);
 				}else{
-					return Integer.MIN_VALUE;
+					return evaluate(board)-200;
 				}
 			}
 			if(depth<=0){
 				return evaluate(board);
 			}
-			int minUtility=Integer.MAX_VALUE;
+			int minValue=Integer.MAX_VALUE;
 			Set<Square> possible=board.getCurrentPossibleSquares();
 			if(possible.isEmpty()){
 				return max(board.pass(),alpha, beta,depth-1)-80;
@@ -60,38 +59,36 @@ public class oldStrategy implements Strategy{
 				Board newB=board.play(s);
 				int cur=max(newB,alpha,beta,depth-1);
 				
-				if(cur<minUtility){
-					minUtility=cur;
+				if(cur<minValue){
+					minValue=cur;
 				}
-				if(minUtility<=alpha){
+				if(minValue<=alpha){
 					break;
 				}
-				if(minUtility<beta){
-					beta=minUtility;
+				if(minValue<beta){
+					beta=minValue;
 				}
 			
 			}
-			return minUtility;
+			return minValue;
 		}
 		
 		private int max(Board board, int alpha, int beta, int depth){
-			if ((System.currentTimeMillis()-startTime) > 950){ //0.95 seconds
-				//System.out.println("Depth reduced");
-				return evaluate(board);
-			}
+			if ((System.currentTimeMillis()-startTime) > 950) //0.95 seconds
+				depth = 0;
 			if(board.isComplete()){
 				if(currentPlayer==board.getWinner()){
-					return Integer.MAX_VALUE;
+					return evaluate(board)+200;
 				}else if(board.getWinner()==null){
 					return evaluate(board);
 				}else{
-					return Integer.MIN_VALUE;
+					return evaluate(board)-200;
 				}
 			}
 			if(depth<=0){
 				return evaluate(board);
 			}
-			int maxUtility=Integer.MIN_VALUE;
+			int maxValue=Integer.MIN_VALUE;
 			Set<Square> possible=board.getCurrentPossibleSquares();
 			if(possible.isEmpty()){
 				return min(board.pass(),alpha, beta,depth-1)-80;
@@ -100,17 +97,17 @@ public class oldStrategy implements Strategy{
 				Board newB=board.play(s);
 				int cur=min(newB,alpha,beta,depth-1);
 				
-				if(cur>maxUtility){
-					maxUtility=cur;
+				if(cur>maxValue){
+					maxValue=cur;
 				}
-				if(maxUtility>=beta){
+				if(maxValue>=beta){
 					break;
 				}
-				if(maxUtility>alpha){
-					beta=maxUtility;
+				if(maxValue>alpha){
+					beta=maxValue;
 				}
 			}
-			return maxUtility;
+			return maxValue;
 		}
 		
 		private Square alphaBetaSearch(Board board){
@@ -121,7 +118,7 @@ public class oldStrategy implements Strategy{
 			
 			for(Square s:board.getCurrentPossibleSquares()){
 				Board newB=board.play(s);
-				int value=min(newB,alpha,beta,6);
+				int value=min(newB,alpha,beta,4);
 				if(value>=maxV){
 					maxV=value;
 					result=s;
@@ -138,29 +135,46 @@ public class oldStrategy implements Strategy{
 		Map<Player, Integer> counts = board.getPlayerSquareCounts();
 		count += counts.get(currentPlayer);
 		count -= counts.get(oppoentPlayer);
-		count /= 2;
-		
-		//Improved mid mode (position value, stability)
+		count=count/2;
+		//Improved mid mode (position value) and frontiers
 		Map<Square, Player> storeSquareToPlayer = board.getSquareOwners();
+		int frontiers = 0;
 		for (Square s : storeSquareToPlayer.keySet()) {
-			int row = s.getRow();
-			int column = s.getColumn();
-			//add position value
-			if (storeSquareToPlayer.get(s).equals(currentPlayer))
-				count += valueBook[row][column];
-			else if(storeSquareToPlayer.get(s).equals(oppoentPlayer))
-				count -= valueBook[row][column];
-					
+			if (storeSquareToPlayer.get(s).equals(currentPlayer)) {					
+				count += valueBook[s.getRow()][s.getColumn()];
+				//frontiers calculation
+				if (storeSquareToPlayer.get(new Square(s.getRow(), s.getColumn()+1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()+1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()-1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow(), s.getColumn()-1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()-1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()+1))==null)
+						{frontiers--;}
+			}
+			else if(storeSquareToPlayer.get(s).equals(oppoentPlayer)) {
+				count -= valueBook[s.getRow()][s.getColumn()];
+				//frontiers calculation
+				if (storeSquareToPlayer.get(new Square(s.getRow(), s.getColumn()+1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()+1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()-1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow(), s.getColumn()-1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()-1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()+1))==null)
+						{frontiers++;}
+			}
 		}
+		count += 2*frontiers;
 		
 		//Improved hard mode (relation and mobility)
 		//mobility
-		Set<Square> posibleMove = board.getCurrentPossibleSquares();
-		count += posibleMove.size();
-		for(Square s: posibleMove){
+		Set<Square> possibleSquare=board.getCurrentPossibleSquares();
+		for(Square s:possibleSquare){
 			count-=valueBook[s.getRow()][s.getColumn()]/2;
 		}
-		
 		//relation?
 		
 		return count;
