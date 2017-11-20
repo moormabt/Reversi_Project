@@ -12,14 +12,14 @@ import edu.miami.cse.reversi.Strategy;
  */
 public class SmartStrategy implements Strategy{
 
-	private int[][] valueBook = {	{24, 0,20,16,16,20, 0,24},
+	private int[][] valueBook = {	{40, 0,20,16,16,20, 0,40},
 									{ 0, 0,16, 4, 4,16, 0, 0},
 									{20,16,12, 8, 8,12,16,20},
 									{16, 4, 8, 0, 0, 8, 4,16},
 									{16, 4, 8, 0, 0, 8, 4,16},
 									{20,16,12, 8, 8,12,16,20},
 									{ 0, 0,16, 4, 4,16, 0, 0},
-									{24, 0,20,16,16,20, 0,24}};
+									{40, 0,20,16,16,20, 0,40}};
 	
 	private Player currentPlayer;
 	private Player oppoentPlayer;
@@ -35,72 +35,72 @@ public class SmartStrategy implements Strategy{
 		private int min(Board board, int alpha, int beta, int depth){
 			if(board.isComplete()){
 				if(currentPlayer==board.getWinner()){
-					return evaluate(board)+200;
+					return Integer.MAX_VALUE;
 				}else if(board.getWinner()==null){
 					return evaluate(board);
 				}else{
-					return evaluate(board)-200;
+					return Integer.MIN_VALUE;
 				}
 			}
 			if(depth<=0){
 				return evaluate(board);
 			}
-			int minValue=Integer.MAX_VALUE;
+			int minUtility=Integer.MAX_VALUE;
 			Set<Square> possible=board.getCurrentPossibleSquares();
 			if(possible.isEmpty()){
-				return max(board.pass(),alpha, beta,depth-1)+80;
+				return max(board.pass(),alpha, beta,depth-1)-80;
 			}
 			for(Square s:possible){
 				Board newB=board.play(s);
 				int cur=max(newB,alpha,beta,depth-1);
 				
-				if(cur<minValue){
-					minValue=cur;
+				if(cur<minUtility){
+					minUtility=cur;
 				}
-				if(minValue<=alpha){
+				if(minUtility<=alpha){
 					break;
 				}
-				if(minValue<beta){
-					beta=minValue;
+				if(minUtility<beta){
+					beta=minUtility;
 				}
 			
 			}
-			return minValue;
+			return minUtility;
 		}
 		
 		private int max(Board board, int alpha, int beta, int depth){
 			if(board.isComplete()){
 				if(currentPlayer==board.getWinner()){
-					return evaluate(board)+200;
+					return Integer.MAX_VALUE;
 				}else if(board.getWinner()==null){
 					return evaluate(board);
 				}else{
-					return evaluate(board)-200;
+					return Integer.MIN_VALUE;
 				}
 			}
 			if(depth<=0){
 				return evaluate(board);
 			}
-			int maxValue=Integer.MIN_VALUE;
+			int maxUtility=Integer.MIN_VALUE;
 			Set<Square> possible=board.getCurrentPossibleSquares();
 			if(possible.isEmpty()){
-				return min(board.pass(),alpha, beta,depth-1)+80;
+				return min(board.pass(),alpha, beta,depth-1)-80;
 			}
 			for(Square s:possible){
 				Board newB=board.play(s);
 				int cur=min(newB,alpha,beta,depth-1);
 				
-				if(cur>maxValue){
-					maxValue=cur;
+				if(cur>maxUtility){
+					maxUtility=cur;
 				}
-				if(maxValue>=beta){
+				if(maxUtility>=beta){
 					break;
 				}
-				if(maxValue>alpha){
-					beta=maxValue;
+				if(maxUtility>alpha){
+					beta=maxUtility;
 				}
 			}
-			return maxValue;
+			return maxUtility;
 		}
 		
 		private Square alphaBetaSearch(Board board){
@@ -128,7 +128,8 @@ public class SmartStrategy implements Strategy{
 		Map<Player, Integer> counts = board.getPlayerSquareCounts();
 		count += counts.get(currentPlayer);
 		count -= counts.get(oppoentPlayer);
-
+		count /= 2;
+		
 		//Improved mid mode (position value)
 		Map<Square, Player> storeSquareToPlayer = board.getSquareOwners();
 		for (Square s : storeSquareToPlayer.keySet()) {
