@@ -136,14 +136,38 @@ public class SmartStrategy implements Strategy{
 		count += counts.get(currentPlayer);
 		count -= counts.get(oppoentPlayer);
 		count=count/2;
-		//Improved mid mode (position value)
+		//Improved mid mode (position value) and frontiers
 		Map<Square, Player> storeSquareToPlayer = board.getSquareOwners();
+		int frontiers = 0;
 		for (Square s : storeSquareToPlayer.keySet()) {
-			if (storeSquareToPlayer.get(s).equals(currentPlayer))
+			if (storeSquareToPlayer.get(s).equals(currentPlayer)) {					
 				count += valueBook[s.getRow()][s.getColumn()];
-			else if(storeSquareToPlayer.get(s).equals(oppoentPlayer))
+				//frontiers calculation
+				if (storeSquareToPlayer.get(new Square(s.getRow(), s.getColumn()+1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()+1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()-1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow(), s.getColumn()-1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()-1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()+1))==null)
+						{frontiers--;}
+			}
+			else if(storeSquareToPlayer.get(s).equals(oppoentPlayer)) {
 				count -= valueBook[s.getRow()][s.getColumn()];
+				//frontiers calculation
+				if (storeSquareToPlayer.get(new Square(s.getRow(), s.getColumn()+1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()+1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()+1, s.getColumn()-1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow(), s.getColumn()-1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()-1))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()))==null
+						|| storeSquareToPlayer.get(new Square(s.getRow()-1, s.getColumn()+1))==null)
+						{frontiers++;}
+			}
 		}
+		count += 3*frontiers;
 		
 		//Improved hard mode (relation and mobility)
 		//mobility
